@@ -1,49 +1,91 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 
-interface CssVariableCompletion {
-    prefix: string;
-    body: string;
-    description: string;
+type CssVariableCompletion = {
+	prefix: string;
+	body: string;
+	description: string;
+	label: string;
+	kind: vscode.CompletionItemKind;
+};
+
+type CssVariableCompletionGroup = { [variable: string]: CssVariableCompletion };
+
+type CssVariableTokenCompletions = { 
+	global: CssVariableCompletionGroup, 
+	alias: CssVariableCompletionGroup 
+};
+
+/**
+ * Creates an object containing completion data for all CSS variables in the provided cssString
+ * Group by Global and Alias tokens
+ * @param cssString 
+ * @returns 
+ */
+function createCssVariableCompletionData(cssString: string): CssVariableTokenCompletions {
+    const global: CssVariableCompletionGroup = {};
+    const alias: CssVariableCompletionGroup = {};
+    const globalTokenMessage = '**Warning** - Try to use Alias tokens instead of Globals.';
+    
+    let currentGroup: CssVariableCompletionGroup | null = null;
+    const lines = cssString.split('\n');
+    for (let line of lines) {
+        line = line.trim();
+
+        if (line.startsWith('/* Global tokens')) {
+            currentGroup = global;
+        } else if (line.startsWith('/* Alias tokens')) {
+            currentGroup = alias;
+        } else if (line.startsWith('--')) {
+            const variableName = line.split(':')[0];
+            if (currentGroup) {
+				const prefix = `${variableName.replace('--', '')}`;
+
+                currentGroup[variableName] = {
+					prefix,
+					body: `var(${variableName})`,
+					description: `Some neat description for \`${variableName}\` goes here! \n\n ${currentGroup === global ? globalTokenMessage : ''} \n\n [pie.design reference](https://pie.design/foundations/colour/tokens/global#${prefix})`,
+                    label: `${prefix.replace('dt-', '')} - PIE Design Token ${currentGroup === global ? '(Global)' : '(Alias)'}`,
+					kind: prefix.includes('color') ? vscode.CompletionItemKind.Color : vscode.CompletionItemKind.Variable
+				};
+            }
+        }
+    }
+
+    return { global, alias };
 }
 
 /**
- * Gets a object containing the completion data for each design token CSS variable
- * @param cssVariableFileString the string contents of the CSS variable file to parse
+ * Creates a vscode.CompletionList from the provided cssVariableCompletions
+ * @param cssVariableCompletions 
  * @returns 
  */
-function getCssVariablesCompletions(cssVariableFileString: string): Record<string, CssVariableCompletion> {
-	const cssVariables: string[] = cssVariableFileString.match(/--dt-.*?:/g)?.map(variable => variable.replace(':', '')) || [];
-	
-	return cssVariables.reduce((accumulatedValues: Record<string, CssVariableCompletion>, variable: string) => {
-		const prefix = `${variable.replace('--', '')}`;
-		
-		accumulatedValues[variable] = {
-			prefix,
-			body: `var(${variable})`,
-			description: `Some neat description for \`${variable}\` goes here! \n\n [pie.design reference](https://pie.design/foundations/colour/tokens/global#${prefix})`,
-		};
+function createAllCompletionItems(cssVariableCompletions: CssVariableTokenCompletions): vscode.CompletionList {
+	const completionItems = new vscode.CompletionList();
+	const globalTokenCompletions = createACompletionItemsForGroup(cssVariableCompletions.global);
+	const aliasTokenCompletions = createACompletionItemsForGroup(cssVariableCompletions.alias);
 
-		return accumulatedValues;
-	}, {}) || {};
+	completionItems.items.push(...globalTokenCompletions.items, ...aliasTokenCompletions.items);
+	return completionItems;
 }
 
 /**
- * Creates a vscode.CompletionList from the provided cssVariablesObject
- * @param cssVariablesObject 
+ * Creates a vscode.CompletionList from the provided group of cssVariableCompletions
+ * @param group 
  * @returns 
  */
-function createCompletionItems(cssVariablesObject: Record<string, CssVariableCompletion>): vscode.CompletionList {
+function createACompletionItemsForGroup(group: CssVariableCompletionGroup): vscode.CompletionList {
 	const completionItems = new vscode.CompletionList();
 
-	for (const key in cssVariablesObject) {
-		const completionItem = new vscode.CompletionItem(cssVariablesObject[key].prefix);
-		completionItem.insertText = cssVariablesObject[key].body;
+	for (const key in group) {
+		const { prefix, label, body, description } = group[key];
+		const completionItem = new vscode.CompletionItem(prefix);
+		completionItem.insertText = body;
 		const docs = new vscode.MarkdownString();
-		docs.appendMarkdown(cssVariablesObject[key].description);
+		docs.appendMarkdown(description);
 		completionItem.documentation = docs;
-		completionItem.label = `${cssVariablesObject[key].prefix.replace('dt-', '')} - PIE Design Token`;
-		completionItem.kind = cssVariablesObject[key].prefix.includes('color') ? vscode.CompletionItemKind.Color : vscode.CompletionItemKind.Variable;
+		completionItem.label = label;
+		completionItem.kind = prefix.includes('color') ? vscode.CompletionItemKind.Color : vscode.CompletionItemKind.Variable;
 		completionItems.items.push(completionItem);
 	}
 
@@ -65,11 +107,11 @@ export function activate(context: vscode.ExtensionContext): void {
 	vscode.workspace.openTextDocument(nodeModulesFilePath).then((document: vscode.TextDocument) => {
 		vscode.window.showInformationMessage('Located pie design tokens in node_modules :)');
 		const data = document.getText();
-		const cssVariableCompletions = getCssVariablesCompletions(data);
+		const cssVariableCompletions = createCssVariableCompletionData(data);
 
 		const provider: vscode.CompletionItemProvider = {
 			provideCompletionItems(): vscode.ProviderResult<vscode.CompletionItem[] | vscode.CompletionList> {
-				return createCompletionItems(cssVariableCompletions);
+				return createAllCompletionItems(cssVariableCompletions);
 			}
 		};
 
@@ -85,3 +127,5 @@ export function activate(context: vscode.ExtensionContext): void {
 }
 
 export function deactivate(): void {}
+
+
