@@ -16,9 +16,6 @@ export function activate(context: vscode.ExtensionContext) {
 		const currentWorkspacePath = workspaceFolders[0].uri.fsPath;
 		const nodeModulesFilePath = path.join(currentWorkspacePath, 'node_modules', '@justeat', 'pie-design-tokens', 'dist', 'jet.css');
 
-		let cssProvider = null;
-		let scssProvider = null;
-
 		// read file from path using vscode
 		vscode.workspace.openTextDocument(nodeModulesFilePath).then((document) => {
 			// console.log(document.getText());
@@ -33,42 +30,26 @@ export function activate(context: vscode.ExtensionContext) {
 				return acc;
 			}, {}) || {};
 
+			const provider = {
+				provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
+					const completionItems = new vscode.CompletionList();
+					Object.keys(cssVariablesObject).forEach((key) => {
+						const completionItem = new vscode.CompletionItem(cssVariablesObject?.[key].prefix[0]);
+						completionItem.insertText = cssVariablesObject?.[key].body;
+						// completionItem.documentation = cssVariablesObject?.[key].description;
+						const docs = new vscode.MarkdownString();
+						docs.appendMarkdown(cssVariablesObject?.[key].description);
+						completionItem.documentation = docs;
+						completionItems.items.push(completionItem);
+					});
+					return completionItems;
+				}
+			};
 			
-			cssProvider = vscode.languages.registerCompletionItemProvider('css', {
-				provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-					const completionItems = new vscode.CompletionList();
-					Object.keys(cssVariablesObject).forEach((key) => {
-						const completionItem = new vscode.CompletionItem(cssVariablesObject?.[key].prefix[0]);
-						completionItem.insertText = cssVariablesObject?.[key].body;
-						// completionItem.documentation = cssVariablesObject?.[key].description;
-						const docs = new vscode.MarkdownString();
-						docs.appendMarkdown(cssVariablesObject?.[key].description);
-						completionItem.documentation = docs;
-						completionItems.items.push(completionItem);
-					});
-					return completionItems;
-				}
-			});
+			const disposable = vscode.languages.registerCompletionItemProvider(['css', 'scss'], provider);
 
-			// todo: prevent duplication between css and scss
-			scssProvider = vscode.languages.registerCompletionItemProvider('scss', {
-				provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-					const completionItems = new vscode.CompletionList();
-					Object.keys(cssVariablesObject).forEach((key) => {
-						const completionItem = new vscode.CompletionItem(cssVariablesObject?.[key].prefix[0]);
-						completionItem.insertText = cssVariablesObject?.[key].body;
-						// completionItem.documentation = cssVariablesObject?.[key].description;
-						const docs = new vscode.MarkdownString();
-						docs.appendMarkdown(cssVariablesObject?.[key].description);
-						completionItem.documentation = docs;
-						completionItems.items.push(completionItem);
-					});
-					return completionItems;
-				}
-			});
-
-			if (cssProvider && scssProvider) {
-				context.subscriptions.push(cssProvider, scssProvider);
+			if (disposable) {
+				context.subscriptions.push(disposable);
 				vscode.window.showInformationMessage('Created pie design token snippets :D');
 			} else {
 				vscode.window.showInformationMessage('Failed to create pie design token snippets :(');
