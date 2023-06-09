@@ -23,7 +23,7 @@ export function activate(context: vscode.ExtensionContext) {
 			// todo: this is old code and can be refactored and moved to the provider below
 			const cssVariablesObject = cssVariables?.reduce((acc: { [key: string]: any }, variable: string) => {
 				acc[variable] = {
-					prefix: [`${variable.replace('--', '')}`, 'design', 'token', 'pie'],
+					prefix: `${variable.replace('--', '')}`,
 					body: `var(${variable})`,
 					description: `Some neat description for \`${variable}\` goes here! \n\n [pie.design reference](https://pie.design/foundations/colour/tokens/global/#${variable.replace('--', '')})`,
 				};
@@ -33,12 +33,16 @@ export function activate(context: vscode.ExtensionContext) {
 			const provider = {
 				provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
 					const completionItems = new vscode.CompletionList();
+					// todo: can we split global and alias tokens and adjust label accordingly?
 					Object.keys(cssVariablesObject).forEach((key) => {
-						const completionItem = new vscode.CompletionItem(cssVariablesObject?.[key].prefix[0]);
+						const completionItem = new vscode.CompletionItem(cssVariablesObject?.[key].prefix);
 						completionItem.insertText = cssVariablesObject?.[key].body;
 						const docs = new vscode.MarkdownString();
 						docs.appendMarkdown(cssVariablesObject?.[key].description);
 						completionItem.documentation = docs;
+						completionItem.label = `${cssVariablesObject?.[key].prefix.replace('dt-', '')} - PIE Design Token`;
+						completionItem.kind = cssVariablesObject?.[key].prefix.includes('color') ? vscode.CompletionItemKind.Color : vscode.CompletionItemKind.Variable;
+
 						completionItems.items.push(completionItem);
 					});
 					return completionItems;
