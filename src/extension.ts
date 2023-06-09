@@ -117,9 +117,36 @@ export function activate(context: vscode.ExtensionContext): void {
 		vscode.window.showInformationMessage('Located pie design tokens in node_modules :)');
 		const data = document.getText();
 		const cssVariableCompletions = createCssVariableCompletionData(data);
+		// yup this is horrendous - it's just temporary to prove out the idea
+		// of only showing color tokens on 'color' css properties
+		const colorCssVariableCompletions = {
+			global: Object.keys(cssVariableCompletions.global).reduce((acc, key) => {
+				if (key.includes('color')) {
+					acc[key] = cssVariableCompletions.global[key];
+				}
+
+				return acc;
+			}, {} as CssVariableCompletionGroup),
+			alias: Object.keys(cssVariableCompletions.alias).reduce((acc, key) => {
+				if (key.includes('color')) {
+					acc[key] = cssVariableCompletions.alias[key];
+				}
+
+				return acc;
+			}, {} as CssVariableCompletionGroup)
+		};
+
 
 		const provider: vscode.CompletionItemProvider = {
-			provideCompletionItems(): vscode.ProviderResult<vscode.CompletionItem[] | vscode.CompletionList> {
+			provideCompletionItems(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken, context: vscode.CompletionContext): vscode.ProviderResult<vscode.CompletionItem[] | vscode.CompletionList> {
+				const lineText = document.lineAt(position).text;
+				const trimmedLineText = lineText.trim();
+
+				// only provide color tokens when the rule contains the word 'color'
+				if (/color/.test(trimmedLineText)) {
+					return createAllCompletionItems(colorCssVariableCompletions);
+				}
+
 				return createAllCompletionItems(cssVariableCompletions);
 			}
 		};
