@@ -16,11 +16,11 @@ export function activate(context: vscode.ExtensionContext) {
 		const currentWorkspacePath = workspaceFolders[0].uri.fsPath;
 		const nodeModulesFilePath = path.join(currentWorkspacePath, 'node_modules', '@justeat', 'pie-design-tokens', 'dist', 'jet.css');
 
-		// read file from path using vscode
+		// retrieve the design tokens css file from the current workspace's node_modules folder
 		vscode.workspace.openTextDocument(nodeModulesFilePath).then((document) => {
-			// console.log(document.getText());
 			const data = document.getText();
 			const cssVariables = data.match(/--dt-.*?:/g)?.map((variable: string) => variable.replace(':', ''));
+			// todo: this is old code and can be refactored and moved to the provider below
 			const cssVariablesObject = cssVariables?.reduce((acc: { [key: string]: any }, variable: string) => {
 				acc[variable] = {
 					prefix: [`${variable.replace('--', '')}`, 'design', 'token', 'pie'],
@@ -36,7 +36,6 @@ export function activate(context: vscode.ExtensionContext) {
 					Object.keys(cssVariablesObject).forEach((key) => {
 						const completionItem = new vscode.CompletionItem(cssVariablesObject?.[key].prefix[0]);
 						completionItem.insertText = cssVariablesObject?.[key].body;
-						// completionItem.documentation = cssVariablesObject?.[key].description;
 						const docs = new vscode.MarkdownString();
 						docs.appendMarkdown(cssVariablesObject?.[key].description);
 						completionItem.documentation = docs;
