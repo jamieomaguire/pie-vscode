@@ -18,7 +18,7 @@
       "properties": {
         "pie-design-system-vscode.provideGlobalTokenCompletions": {
           "type": "boolean",
-          "default": false,
+          "default": true,
           "description": "Whether to provide completions for global tokens. Disabled by default as global tokens should generally be avoided."
         }
       }
