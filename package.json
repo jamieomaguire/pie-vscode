@@ -1,6 +1,6 @@
 {
-  "name": "pie-vscode",
-  "displayName": "pie-vscode",
+  "name": "pie-design-system-vscode",
+  "displayName": "PIE Design System VSCode",
   "description": "",
   "version": "0.0.1",
   "engines": {
@@ -12,6 +12,18 @@
   "activationEvents": [
     "*"
   ],
+  "contributes": {
+    "configuration": {
+      "title": "PIE Design System VSCode",
+      "properties": {
+        "pie-design-system-vscode.provideGlobalTokenCompletions": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether to provide completions for global tokens. Disabled by default as global tokens should generally be avoided."
+        }
+      }
+    }
+  },
   "main": "./out/extension.js",
   "scripts": {
     "vscode:prepublish": "yarn run compile",

@@ -62,10 +62,19 @@ function createCssVariableCompletionData(cssString: string): CssVariableTokenCom
  */
 function createAllCompletionItems(cssVariableCompletions: CssVariableTokenCompletions): vscode.CompletionList {
 	const completionItems = new vscode.CompletionList();
-	const globalTokenCompletions = createACompletionItemsForGroup(cssVariableCompletions.global);
-	const aliasTokenCompletions = createACompletionItemsForGroup(cssVariableCompletions.alias);
+	const config = vscode.workspace.getConfiguration('pie-design-system-vscode');
+	const provideGlobalTokenCompletions = config.get('provideGlobalTokenCompletions');
+	
+	let globalTokenCompletions = new vscode.CompletionList();
 
+	// By default we will not provide global token completions as they should be discouraged
+	if (provideGlobalTokenCompletions) {
+		globalTokenCompletions = createACompletionItemsForGroup(cssVariableCompletions.global);
+	}
+
+	const aliasTokenCompletions = createACompletionItemsForGroup(cssVariableCompletions.alias);
 	completionItems.items.push(...globalTokenCompletions.items, ...aliasTokenCompletions.items);
+	
 	return completionItems;
 }
 
