@@ -1,8 +1,8 @@
 {
-  "name": "pie-design-system-vscode",
-  "displayName": "PIE Design System VSCode",
-  "description": "",
-  "version": "0.0.1",
+  "name": "pie-design-system-vscode-prototype",
+  "displayName": "PIE Design System VSCode - Prototype",
+  "description": "This is a prototype for a VSCode extension that provides completions for PIE Design System tokens. This is a personal project and not an official PIE Design System product.",
+  "version": "0.1.0",
   "engines": {
     "vscode": "^1.79.0"
   },
@@ -16,7 +16,7 @@
     "configuration": {
       "title": "PIE Design System VSCode",
       "properties": {
-        "pie-design-system-vscode.provideGlobalTokenCompletions": {
+        "pie-design-system-vscode-prototype.provideGlobalTokenCompletions": {
           "type": "boolean",
           "default": true,
           "description": "Whether to provide completions for global tokens. Disabled by default as global tokens should generally be avoided."
