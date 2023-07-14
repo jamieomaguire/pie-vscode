@@ -1,6 +1,10 @@
 {
   "name": "pie-design-system-vscode-prototype",
   "displayName": "PIE Design System VSCode - Prototype",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jamieomaguire/pie-vscode.git"
+  },
   "description": "This is a prototype for a VSCode extension that provides completions for PIE Design System tokens. This is a personal project and not an official PIE Design System product.",
   "version": "0.1.0",
   "engines": {

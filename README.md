@@ -11,20 +11,14 @@ Provide hinting at what design tokens you can use. Some CSS properties, such as 
 
 When you select a token, the CSS variable version will be added to the line you're on.
 
-![](images/demo-1.png)
-![](images/demo-1b.png)
-
 ### Plugs into your locally installed design tokens
 The extension provides hints only for the tokens installed in your project!
-![](images/demo-2.png)
 
 ### Token information
 Each token has some (placeholder) information as well as a warning if it's a global token. Each token has a link to take you to it's page on our documentation website. This is currently placeholder.
-![](images/demo-3.png)
 
 ### Enable global token support (if you really need it)
 By default you will not see support for global tokens. Simply enable the extension setting to see them.
-![](images/demo-4.png)
 
 ## Requirements
 
