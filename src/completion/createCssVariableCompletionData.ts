@@ -41,12 +41,12 @@ export function createCssVariableCompletionData(cssString: string): CssVariableT
                 const isColor = tokenType === 'color';
 
                 currentGroup[tokenType][variableName] = {
-					body: `var(${variableName})`,
-					description: `Some neat description for \`${variableName}\` goes here! \n\n ${isGlobal ? globalTokenMessage : ''} \n\n [pie.design reference](https://pie.design/foundations/colour/tokens/global#${prefix})`,
+                    body: `var(${variableName})`,
+                    description: `Some neat description for \`${variableName}\` goes here! \n\n ${isGlobal ? globalTokenMessage : ''} \n\n [pie.design reference](https://pie.design/foundations/colour/tokens/global#${prefix})`,
                     detail: isColor ? getColorTokenDetail(variableValue, isGlobal) : undefined,
-					kind: isColor ? vscode.CompletionItemKind.Color : vscode.CompletionItemKind.Variable,
+                    kind: isColor ? vscode.CompletionItemKind.Color : vscode.CompletionItemKind.Variable,
                     label: `${prefix.replace('dt-', '')} - PIE Design Token ${isGlobal ? '(Global)' : '(Alias)'}`,
-					prefix,
+                    prefix,
 				};
             }
         }
