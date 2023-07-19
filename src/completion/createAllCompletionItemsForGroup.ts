@@ -13,7 +13,7 @@ export function createAllCompletionItemsForGroup(group: CssVariableCompletionGro
         const { prefix, label, body, description, kind, detail } = group[variable];
         const completionItem = new vscode.CompletionItem(prefix, kind);
         completionItem.insertText = new vscode.SnippetString(body);
-        completionItem.detail = detail;
+        completionItem.detail = detail; // This adds the color preview and the hex code
         const docs = new vscode.MarkdownString();
         docs.appendMarkdown(description);
         completionItem.documentation = docs;
