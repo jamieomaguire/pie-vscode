@@ -7,7 +7,7 @@
   },
   "publisher": "JamieMaguire",
   "description": "This is a prototype for a VSCode extension that provides completions for PIE Design System tokens. This is a personal project and not an official PIE Design System product.",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "engines": {
     "vscode": "^1.79.0"
   },
