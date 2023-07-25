@@ -17,9 +17,9 @@ export function activate(context: vscode.ExtensionContext): void {
 	const nodeModulesFilePath = path.join(currentWorkspacePath, 'node_modules', '@justeat', 'pie-design-tokens', 'dist', 'jet.css');
 
 	vscode.workspace.openTextDocument(nodeModulesFilePath).then((document: vscode.TextDocument) => {
-		vscode.window.showInformationMessage('Located pie design tokens in node_modules :)');
+		vscode.window.setStatusBarMessage('PIE Design System - Located tokens in node_modules 😃', 5000);
 		const data = document.getText();
-		
+
 		const cssVariableCompletions = createCssVariableCompletionData(data);
 		const colorCssVariableCompletions = createTypeSpecificCompletions('color', cssVariableCompletions);
 		const spacingCssVariableCompletions = createTypeSpecificCompletions('spacing', cssVariableCompletions);
@@ -45,14 +45,14 @@ export function activate(context: vscode.ExtensionContext): void {
 
 		if (disposable) {
 			context.subscriptions.push(disposable);
-			vscode.window.showInformationMessage('Created pie design token snippets :D');
+			setTimeout(() => {
+				vscode.window.setStatusBarMessage('PIE Design System - Token snippets created 🎉', 5000);
+			}, 500);
 		} else {
-			vscode.window.showInformationMessage('Failed to create pie design token snippets :(');
+			vscode.window.showErrorMessage('PIE Design System - Failed to create token snippets 😞');
 		}
 	});
 }
 
 
 export function deactivate(): void {}
-
-
